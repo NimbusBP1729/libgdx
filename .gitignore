@@ -180,6 +180,11 @@
 /extensions/gdx-controllers/gdx-controllers-gwt/bin
 /extensions/gdx-controllers/gdx-controllers-gwt/target
 
+/extensions/gdx-maps/gdx-maps/bin
+/extensions/gdx-maps/gdx-maps/target/
+/extensions/gdx-maps/gdx-maps/bin
+/extensions/gdx-maps/gdx-maps/target/
+
 /gdx/target
 /gdx/obj
 /gdx/bin
