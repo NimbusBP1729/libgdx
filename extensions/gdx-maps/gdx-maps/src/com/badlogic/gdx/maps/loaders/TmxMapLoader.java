@@ -24,9 +24,9 @@ import com.badlogic.gdx.maps.objects.RectangleMapObject;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TiledMapTile;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
+import com.badlogic.gdx.maps.tiled.TiledMapTileLayer.Cell;
 import com.badlogic.gdx.maps.tiled.TiledMapTileSet;
 import com.badlogic.gdx.maps.tiled.TiledMapTileSets;
-import com.badlogic.gdx.maps.tiled.TiledMapTileLayer.Cell;
 import com.badlogic.gdx.maps.tiled.tiles.StaticTiledMapTile;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Base64Coder;
@@ -56,8 +56,8 @@ public class TmxMapLoader extends SynchronousAssetLoader<TiledMap, TmxMapLoader.
 	@Override
 	public TiledMap load(AssetManager assetManager, String fileName, Parameters parameter) {
 		this.assetManager = assetManager;
-		tmx = resolve(fileName);
-		xml = new XmlReader();
+		this.tmx = resolve(fileName);
+		this.xml = new XmlReader();
 		try {
 			XmlReader.Element root = xml.parse(tmx);
 			TiledMap map = new TiledMap();
@@ -432,10 +432,10 @@ public class TmxMapLoader extends SynchronousAssetLoader<TiledMap, TmxMapLoader.
 			}
 		}
 		return result;		
-	}	
+	}
 	
 	public static int unsignedByteToInt (byte b) {
 		return (int) b & 0xFF;
 	}
-	
+
 }
