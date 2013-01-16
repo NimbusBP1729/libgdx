@@ -1,18 +1,19 @@
 package com.badlogic.gdx.maps.objects;
 
 import com.badlogic.gdx.maps.MapObject;
+import com.badlogic.gdx.math.Polygon;
 
 public class PolylineMapObject extends MapObject {
 
-	private float[] vertices;
-
-	public float[] getVertices() {
-		return vertices;
+	private Polygon polygon;
+	
+	public Polygon getPolygon() {
+		return polygon;
 	}
 	
 	public PolylineMapObject(float[] vertices) {
 		super();
-		this.vertices = vertices;
+		polygon = new Polygon(vertices);
 	}
 
 }

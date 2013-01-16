@@ -39,6 +39,7 @@ public class MapObject {
 	}
 	
 	public MapObject() {
+		visible = true;
 		properties = new MapProperties();
 	}
 	

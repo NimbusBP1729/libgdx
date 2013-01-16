@@ -49,7 +49,7 @@ public class TiledMapTileSets implements Iterable<TiledMapTileSet> {
 	
 	@Override
 	public Iterator<TiledMapTileSet> iterator() {
-		return new Array.ArrayIterator<TiledMapTileSet>(tilesets);
+		return tilesets.iterator();
 	}
 	
 }
