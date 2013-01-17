@@ -5,6 +5,8 @@ import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.GL10;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.maps.Map;
 import com.badlogic.gdx.maps.MapLayer;
@@ -17,6 +19,8 @@ import com.badlogic.gdx.maps.objects.RectangleMapObject;
 import com.badlogic.gdx.maps.objects.TextureMapObject;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TiledMapRenderer;
+import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
+import com.badlogic.gdx.maps.tiled.tiles.StaticTiledMapTile;
 import com.badlogic.gdx.math.Polygon;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.tests.utils.GdxTest;
@@ -37,7 +41,12 @@ public class MapsTests extends GdxTest {
 	private SplatMapRenderer splatMapRenderer;
 	private SuperMapRenderer superMapRenderer;
 	
+	Texture tiles;
+	
 	Texture texture;
+	
+	BitmapFont font;
+	SpriteBatch batch;
 	
 	@Override
 	public void create() {		
@@ -51,6 +60,9 @@ public class MapsTests extends GdxTest {
 		OrthoCamController controller = new OrthoCamController(camera);
 		Gdx.input.setInputProcessor(controller);
 	
+		font = new BitmapFont();
+		batch = new SpriteBatch();
+		
 //		assetManager = new AssetManager();
 //		assetManager.setLoader(TiledMap.class, new TmxMapLoader(new InternalFileHandleResolver()));
 //		assetManager.load("data/maps/tiles.tmx", TiledMap.class);
@@ -58,31 +70,47 @@ public class MapsTests extends GdxTest {
 //		map = assetManager.get("data/maps/tiles.tmx");
 //		renderer = new TiledMapRenderer(map);
 	
+		tiles = new Texture(Gdx.files.internal("data/maps/tiles.png"));
+		{
+			TextureRegion[][] splitTiles = TextureRegion.split(tiles, 32, 32);
+			map = new TiledMap();
+			MapLayers layers = map.getLayers();
+			for (int l = 0; l < 10; l++) {
+				TiledMapTileLayer layer = new TiledMapTileLayer(150, 100, 32, 32);
+				for (int x = 0; x < 150; x++) {
+					for (int y = 0; y < 100; y++) {
+						int ty = (int)(Math.random() * splitTiles.length);
+						int tx = (int)(Math.random() * splitTiles[ty].length);
+						layer.setCell(x, y, new StaticTiledMapTile(splitTiles[ty][tx]));
+					}
+				}
+				layers.addLayer(layer);
+			}
+			renderer = new TiledMapRenderer(map);
+		}
+		
 		texture = new Texture(Gdx.files.internal("data/badlogicsmall.jpg"));
 		
 		{
-		shapeMap = new Map();
-		MapLayers layers = shapeMap.getLayers();
-		MapLayer layer = new MapLayer();
-		MapObjects objects = layer.getObjects();
-		CircleMapObject circle1 = new CircleMapObject(100, 100, 25);
-		objects.addObject(circle1);
-		RectangleMapObject rectangle1 = new RectangleMapObject(200, 200, 100, 50);
-		objects.addObject(rectangle1);
-		polygon1 = new PolygonMapObject(new float[] {100, 100, 100, 200, 200, 100});
-		objects.addObject(polygon1);
-		polygon = polygon1.getPolygon();
-		Rectangle bounds = polygon.getBoundingRectangle();
-		polygon.setOrigin(bounds.x + bounds.width / 4, bounds.y + bounds.height / 4);
-		PolylineMapObject polyline1 = new PolylineMapObject(new float[] {300, 100, 350, 200, 400, 125, 500, 150});
-		objects.addObject(polyline1);
-		
-		layers.addLayer(layer);
+			shapeMap = new Map();
+			MapLayers layers = shapeMap.getLayers();
+			MapLayer layer = new MapLayer();
+			MapObjects objects = layer.getObjects();
+			CircleMapObject circle1 = new CircleMapObject(100, 100, 25);
+			objects.addObject(circle1);
+			RectangleMapObject rectangle1 = new RectangleMapObject(200, 200, 100, 50);
+			objects.addObject(rectangle1);
+			polygon1 = new PolygonMapObject(new float[] {100, 100, 100, 200, 200, 100});
+			objects.addObject(polygon1);
+			polygon = polygon1.getPolygon();
+			Rectangle bounds = polygon.getBoundingRectangle();
+			polygon.setOrigin(bounds.x + bounds.width / 4, bounds.y + bounds.height / 4);
+			PolylineMapObject polyline1 = new PolylineMapObject(new float[] {300, 100, 350, 200, 400, 125, 500, 150});
+			objects.addObject(polyline1);
+			layers.addLayer(layer);
 		}
 		
-		{
-			
-			
+		{		
 			splatMap = new Map();
 			MapLayers layers = splatMap.getLayers();
 			MapLayer layer = new MapLayer();
@@ -91,11 +119,9 @@ public class MapsTests extends GdxTest {
 			texture1.setX(100);
 			texture1.setY(100);
 			objects.addObject(texture1);
-			
 			TextureMapObject texture2 = new TextureMapObject(texture1);
 			texture2.setX(texture2.getX() + 100);
 			objects.addObject(texture2);
-			
 			layers.addLayer(layer);
 		}
 		
@@ -108,11 +134,9 @@ public class MapsTests extends GdxTest {
 			texture1.setX(100);
 			texture1.setY(100);
 			objects.addObject(texture1);
-			
 			TextureMapObject texture2 = new TextureMapObject(texture1);
 			texture2.setX(texture2.getX() + 100);
 			objects.addObject(texture2);
-			
 			CircleMapObject circle1 = new CircleMapObject(100, 100, 25);
 			objects.addObject(circle1);
 			RectangleMapObject rectangle1 = new RectangleMapObject(200, 200, 100, 50);
@@ -124,7 +148,6 @@ public class MapsTests extends GdxTest {
 			polygon.setOrigin(bounds.x + bounds.width / 4, bounds.y + bounds.height / 4);
 			PolylineMapObject polyline1 = new PolylineMapObject(new float[] {300, 100, 350, 200, 400, 125, 500, 150});
 			objects.addObject(polyline1);
-			
 			layers.addLayer(layer);
 		}
 		
@@ -148,12 +171,14 @@ public class MapsTests extends GdxTest {
 //			polygon1.setVisible(!polygon1.getVisible());
 //		}
 //		polygon.rotate(1);
-//		renderer.render(camera);
+		renderer.render(camera);
 		
 //		shapeMapRenderer.render(camera);
 //		splatMapRenderer.render(camera);
-		superMapRenderer.render(camera);
-		
+		//superMapRenderer.render(camera);
+		batch.begin();
+		font.draw(batch, "FPS: " + Gdx.graphics.getFramesPerSecond(), 10, 20); 
+		batch.end();
 	}
 	
 }
