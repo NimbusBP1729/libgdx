@@ -1,6 +1,7 @@
 package com.badlogic.gdx.tests.extensions.maps;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.InputAdapter;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.GL10;
 import com.badlogic.gdx.graphics.OrthographicCamera;
@@ -23,14 +24,16 @@ import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.tiles.StaticTiledMapTile;
 import com.badlogic.gdx.math.Polygon;
 import com.badlogic.gdx.math.Rectangle;
+import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.tests.utils.GdxTest;
 import com.badlogic.gdx.tests.utils.OrthoCamController;
 
 public class MapsTests extends GdxTest {
 	
 	private TiledMap map;
-	private TiledMapRenderer renderer;
+	private TiledMapRenderer2 renderer;
 	private OrthographicCamera camera;
+	private OrthoCamController cameraController;
 	
 	AssetManager assetManager;
 	
@@ -57,8 +60,8 @@ public class MapsTests extends GdxTest {
 		camera.setToOrtho(false, (w / h) * 320, 320);
 		camera.update();
 		
-		OrthoCamController controller = new OrthoCamController(camera);
-		Gdx.input.setInputProcessor(controller);
+		cameraController = new OrthoCamController(camera);
+		Gdx.input.setInputProcessor(cameraController);
 	
 		font = new BitmapFont();
 		batch = new SpriteBatch();
@@ -68,7 +71,7 @@ public class MapsTests extends GdxTest {
 //		assetManager.load("data/maps/tiles.tmx", TiledMap.class);
 //		assetManager.finishLoading();
 //		map = assetManager.get("data/maps/tiles.tmx");
-//		renderer = new TiledMapRenderer(map);
+//		renderer = new TiledMapRenderer2(map);
 	
 		tiles = new Texture(Gdx.files.internal("data/maps/tiles.png"));
 		{
@@ -86,7 +89,7 @@ public class MapsTests extends GdxTest {
 				}
 				layers.addLayer(layer);
 			}
-			renderer = new TiledMapRenderer(map);
+			renderer = new TiledMapRenderer2(map);
 		}
 		
 		texture = new Texture(Gdx.files.internal("data/badlogicsmall.jpg"));
@@ -171,14 +174,54 @@ public class MapsTests extends GdxTest {
 //			polygon1.setVisible(!polygon1.getVisible());
 //		}
 //		polygon.rotate(1);
+		
+		if (cameraController.dirty) {
+			renderer.setProjectionMatrix(camera.combined);
+			cameraController.dirty = false;
+		}
+		renderer.begin();
 		renderer.render(camera);
+		renderer.end();
 		
 //		shapeMapRenderer.render(camera);
 //		splatMapRenderer.render(camera);
 		//superMapRenderer.render(camera);
+	
 		batch.begin();
 		font.draw(batch, "FPS: " + Gdx.graphics.getFramesPerSecond(), 10, 20); 
 		batch.end();
+	}
+	
+	public class OrthoCamController extends InputAdapter {
+		final OrthographicCamera camera;
+		final Vector3 curr = new Vector3();
+		final Vector3 last = new Vector3(-1, -1, -1);
+		final Vector3 delta = new Vector3();
+
+		boolean dirty = true;
+		
+		public OrthoCamController (OrthographicCamera camera) {
+			this.camera = camera;
+		}
+
+		@Override
+		public boolean touchDragged (int x, int y, int pointer) {
+			camera.unproject(curr.set(x, y, 0));
+			if (!(last.x == -1 && last.y == -1 && last.z == -1)) {
+				camera.unproject(delta.set(last.x, last.y, 0));
+				delta.sub(curr);
+				camera.position.add(delta.x, delta.y, 0);
+				dirty = true;
+			}
+			last.set(x, y, 0);
+			return false;
+		}
+
+		@Override
+		public boolean touchUp (int x, int y, int pointer, int button) {
+			last.set(-1, -1, -1);
+			return false;
+		}
 	}
 	
 }
